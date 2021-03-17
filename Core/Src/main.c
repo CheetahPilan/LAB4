@@ -47,10 +47,12 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint32_t ADCData[4]={0};
+int State = 0;
 uint32_t Time = 0;
-uint32_t Time2 = 0;
-uint32_t GPIO_Pin[2];
-int State = 1;
+uint32_t Count_Time = 0;
+uint32_t Toggle_Time = 0;
+uint32_t Time_Now = 0;
+uint32_t ANS_Time = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -101,7 +103,6 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADC_Start_DMA(&hadc1, ADCData, 4);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,23 +112,27 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  GPIO_Pin[0] = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-	  if(GPIO_Pin[0] == 0 && GPIO_Pin[1]==1)
-	  {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
-		Time = HAL_GetTick();
-		while(1)
-		{
-			if(HAL_GetTick()-Time>=5000)
+	  Time_Now = HAL_GetTick();
+	  Count_Time = 1000 + (((2269547 * ADCData[0])+ADCData[1])%1000);
+	  switch (State) {
+		case 1:
+			if(HAL_GetTick()-Time>=Count_Time)
 			{
-				Time = HAL_GetTick();
+				Toggle_Time = HAL_GetTick();
 				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
-				break;
+				State = 2;
 			}
-		}
-	  }
-	  GPIO_Pin[1] = GPIO_Pin[0];
-
+			break;
+		case 2:
+			if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)==1)
+			{
+				ANS_Time = Time_Now  - Toggle_Time;
+				State = 0;
+			}
+			break;
+		default:
+			break;
+	}
   }
   /* USER CODE END 3 */
 }
@@ -215,7 +220,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -315,11 +320,11 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
@@ -337,36 +342,24 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-//{
-//	while(1)
-//	{
-//		GPIO_Pin = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-//		switch (GPIO_Pin)
-//		{
-//			case 0:
-//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
-//				Time = HAL_GetTick();
-//				while(1)
-//				{
-//					if(HAL_GetTick()-Time >= 5000)
-//					{
-//						Time = HAL_GetTick();
-//						HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5,1);
-//						break;
-//					}
-//				}
-//				break;
-////			case 1:
-////				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5,1);
-////				break;
-//		}
-//	}
-//
-//
-//
-//
-//}
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == GPIO_PIN_13)
+	{
+		if(State == 0)
+		{
+			Time = HAL_GetTick();
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5,0);
+			State = 1;
+		}
+
+	}
+
+
+
+
+
+}
 /* USER CODE END 4 */
 
 /**

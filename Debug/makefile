@@ -28,34 +28,34 @@ endif
 
 -include ../makefile.defs
 
-BUILD_ARTIFACT_NAME := LAB4
+BUILD_ARTIFACT_NAME := LAB04
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX := 
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME).$(BUILD_ARTIFACT_EXTENSION)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-LAB4.elf \
+LAB04.elf \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-LAB4.list \
+LAB04.list \
 
 OBJCOPY_BIN += \
-LAB4.bin \
+LAB04.bin \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: LAB4.elf secondary-outputs
+main-build: LAB04.elf secondary-outputs
 
 # Tool invocations
-LAB4.elf: $(OBJS) $(USER_OBJS) C:\Users\admin\Documents\GitHub\LAB4\STM32F411RETX_FLASH.ld
-	arm-none-eabi-gcc -o "LAB4.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\admin\Documents\GitHub\LAB4\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LAB4.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+LAB04.elf: $(OBJS) $(USER_OBJS) C:\Users\admin\Documents\GitHub\LAB4\STM32F411RETX_FLASH.ld
+	arm-none-eabi-gcc -o "LAB04.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\admin\Documents\GitHub\LAB4\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LAB04.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -64,13 +64,13 @@ default.size.stdout: $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-LAB4.list: $(EXECUTABLES)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "LAB4.list"
+LAB04.list: $(EXECUTABLES)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "LAB04.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-LAB4.bin: $(EXECUTABLES)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "LAB4.bin"
+LAB04.bin: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "LAB04.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 
