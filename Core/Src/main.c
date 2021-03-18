@@ -113,24 +113,13 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  Time_Now = HAL_GetTick();
+	  if(HAL_GetTick()-Time>=Count_Time && State == 1)
+	  {
+		  Toggle_Time = HAL_GetTick();
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
+		  State = 2;
+	  }
 
-	  switch (State) {
-		case 1:
-			if(HAL_GetTick()-Time>=Count_Time)
-			{
-				Toggle_Time = HAL_GetTick();
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
-				State = 2;
-			}
-			break;
-		case 2:
-			if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)==1)
-			{
-				ANS_Time = Time_Now  - Toggle_Time;
-				State = 0;
-			}
-			break;
-	}
   }
   /* USER CODE END 3 */
 }
@@ -345,17 +334,19 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if(GPIO_Pin == GPIO_PIN_13)
 	{
-		if(State == 0)
+		if(State == 0 && HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == 0)
 		{
 			Time = HAL_GetTick();
 			Count_Time = 1000 + (((2269547 * ADCData[0])+ADCData[1])%10000);
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5,0);
 			State = 1;
 		}
-
+		else if(State == 2 && HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == 1)
+		{
+			ANS_Time = Time_Now  - Toggle_Time;
+			State = 0;
+		}
 	}
-
-
 
 
 
