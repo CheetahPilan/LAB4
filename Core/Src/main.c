@@ -113,7 +113,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  Time_Now = HAL_GetTick();
-	  Count_Time = 1000 + (((2269547 * ADCData[0])+ADCData[1])%1000);
+
 	  switch (State) {
 		case 1:
 			if(HAL_GetTick()-Time>=Count_Time)
@@ -129,8 +129,6 @@ int main(void)
 				ANS_Time = Time_Now  - Toggle_Time;
 				State = 0;
 			}
-			break;
-		default:
 			break;
 	}
   }
@@ -198,7 +196,8 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 1 */
 
   /* USER CODE END ADC1_Init 1 */
-  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment an
+   * d number of conversion)
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
@@ -349,11 +348,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		if(State == 0)
 		{
 			Time = HAL_GetTick();
+			Count_Time = 1000 + (((2269547 * ADCData[0])+ADCData[1])%10000);
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5,0);
 			State = 1;
 		}
 
 	}
+
 
 
 
